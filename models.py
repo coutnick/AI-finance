@@ -18,10 +18,27 @@ class Transaction(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     amount = db.Column(db.Float, nullable=False)
     category = db.Column(db.String(50), nullable=False)
-    date = db.Column(db.DateTime, default=datetime.utcnow)
+    date = db.Column(db.DateTime, default=datetime.now())
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "amount": self.amount,
+            "category": self.category,
+            "date": self.date.isoformat()
+        }
 
 class Budget(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     category = db.Column(db.String(50), nullable=False)
     limit = db.Column(db.Float, nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "category": self.category,
+            "limit": self.limit
+        }

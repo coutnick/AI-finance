@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, request, jsonify
 from models import db, Transaction
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -10,7 +11,12 @@ transactions_bp = Blueprint('transactions_bp', __name__)
 def add_transaction():
     user_id = get_jwt_identity()
     data = request.get_json()
-    new_transaction = Transaction(user_id=user_id, amount=data['amount'], category=data['category'], data=data['data'])
+
+    date_object = datetime.strptime(data['date'], '%Y-%m-%d').date()
+    if not data: 
+        return jsonify({"message": "No JSON data provided"}), 400
+    
+    new_transaction = Transaction(user_id=user_id, amount=data['amount'], category=data['category'], date=date_object)
     db.session.add(new_transaction)
     db.session.commit()
     return jsonify({"message": "Transaction added successfully"}), 201
@@ -33,7 +39,7 @@ def update_transaction(transaction_id):
         data = request.get_json()
         transaction.amount = data.get('amount', transaction.amount)
         transaction.category = data.get('category', transaction.category)
-        transaction.date = data.get('date', transaction.category)
+        transaction.date = data.get('date', transaction.date)
         db.session.commit()
         return jsonify({"message": "Transaction updated successfully"}), 200
     else:
